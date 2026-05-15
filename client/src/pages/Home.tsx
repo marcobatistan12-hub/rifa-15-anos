@@ -31,11 +31,23 @@ export default function Home() {
     setSelectedNumber(null);
     setShowConfetti(false);
 
+    // Numbers with higher chance
+    const specialNumbers = [59, 60, 49, 66, 41, 43, 25, 10, 47, 50, 67, 54, 62];
+
     // Simulate spinning through numbers
     let iterations = 0;
     const maxIterations = 40;
     const spinInterval = setInterval(() => {
-      const randomNumber = Math.floor(Math.random() * 100) + 1;
+      let randomNumber;
+      
+      // 60% chance to pick from special numbers
+      if (Math.random() < 0.6) {
+        randomNumber = specialNumbers[Math.floor(Math.random() * specialNumbers.length)];
+      } else {
+        // 40% chance to pick any number from 1-100
+        randomNumber = Math.floor(Math.random() * 100) + 1;
+      }
+      
       setSelectedNumber(randomNumber);
       iterations++;
 
