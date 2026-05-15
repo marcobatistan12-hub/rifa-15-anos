@@ -35,7 +35,6 @@ export default function Home() {
     width: typeof window !== "undefined" ? window.innerWidth : 0,
     height: typeof window !== "undefined" ? window.innerHeight : 0,
   });
-  const [rotation, setRotation] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -50,104 +49,88 @@ export default function Home() {
   }, []);
 
   const performDraw = () => {
+    if (isSpinning) return;
+
     setIsSpinning(true);
     setSelectedName(null);
     setShowConfetti(false);
 
-    // Animate spinning
-    let currentRotation = 0;
+    // Simulate spinning through names
+    let iterations = 0;
+    const maxIterations = 30;
     const spinInterval = setInterval(() => {
-      currentRotation += 45;
-      setRotation(currentRotation);
-    }, 50);
-
-    // After 3 seconds, stop spinning and reveal winner
-    setTimeout(() => {
-      clearInterval(spinInterval);
-
-      // Pick a random name
       const randomIndex = Math.floor(Math.random() * GUEST_NAMES.length);
-      const winner = GUEST_NAMES[randomIndex];
-      setSelectedName(winner);
+      setSelectedName(GUEST_NAMES[randomIndex]);
+      iterations++;
 
-      // Final rotation to stop at a nice angle
-      const finalRotation = (randomIndex * (360 / GUEST_NAMES.length)) % 360;
-      setRotation(finalRotation);
-
-      setIsSpinning(false);
-
-      // Show confetti for celebration
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
-    }, 3000);
+      if (iterations >= maxIterations) {
+        clearInterval(spinInterval);
+        setIsSpinning(false);
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }
+    }, 100);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-500 via-pink-300 to-pink-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+
       {showConfetti && (
         <Confetti
           width={windowSize.width}
           height={windowSize.height}
           recycle={false}
-          numberOfPieces={200}
+          numberOfPieces={300}
+          gravity={0.3}
         />
       )}
 
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-4xl relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
-            Sorteio Festa de 15 Anos
+        <div className="text-center mb-16">
+          <div className="mb-4">
+            <span className="text-6xl">✨</span>
+          </div>
+          <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 bg-clip-text text-transparent mb-2">
+            Sorteio
           </h1>
-          <p className="text-2xl text-white mb-1 drop-shadow">Lara</p>
-          <p className="text-xl text-white/90 drop-shadow">
-            Quem será o próximo sorteado?
+          <h2 className="text-4xl md:text-5xl font-light text-gray-800 mb-4">
+            Festa de 15 Anos
+          </h2>
+          <p className="text-2xl font-semibold text-rose-600 mb-2">Lara</p>
+          <p className="text-lg text-gray-600">
+            Descubra quem será o próximo sorteado
           </p>
         </div>
 
-        {/* Main Card */}
-        <Card className="bg-white/95 backdrop-blur shadow-2xl p-8 mb-8">
-          {/* Spinning Ball */}
-          <div className="flex justify-center mb-8">
-            <div className="relative w-64 h-64">
-              {/* Outer ring */}
-              <div className="absolute inset-0 rounded-full border-8 border-pink-600 shadow-2xl"></div>
-
-              {/* Spinning ball with names */}
-              <div
-                className={`absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 shadow-2xl flex items-center justify-center transition-transform ${
-                  isSpinning ? "" : "transition-transform duration-1000"
-                }`}
-                style={{
-                  transform: `rotate(${rotation}deg)`,
-                  transitionDuration: isSpinning ? "0ms" : "1000ms",
-                }}
-              >
-                {/* Names around the ball */}
-                {GUEST_NAMES.map((name, i) => {
-                  const angle = (i * (360 / GUEST_NAMES.length)) * (Math.PI / 180);
-                  const x = Math.cos(angle) * 100;
-                  const y = Math.sin(angle) * 100;
-
-                  return (
-                    <div
-                      key={i}
-                      className="absolute w-16 h-16 flex items-center justify-center font-bold text-xs text-white drop-shadow-lg text-center"
-                      style={{
-                        transform: `translate(${x}px, ${y}px)`,
-                      }}
-                    >
-                      {name}
-                    </div>
-                  );
-                })}
-
-                {/* Center circle */}
-                <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center">
-                  <span className="text-3xl font-bold text-pink-600">🎀</span>
+        {/* Main Display Card */}
+        <Card className="bg-white/80 backdrop-blur-xl shadow-2xl p-12 mb-8 border border-white/50">
+          {/* Result Display */}
+          <div className="min-h-64 flex items-center justify-center mb-12">
+            {selectedName ? (
+              <div className="text-center animate-in fade-in zoom-in duration-500">
+                <p className="text-sm font-semibold text-rose-500 uppercase tracking-widest mb-4">
+                  Sorteado(a)
+                </p>
+                <p className="text-8xl md:text-9xl font-bold text-transparent bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text mb-6">
+                  {selectedName}
+                </p>
+                <div className="flex justify-center gap-2">
+                  <span className="text-4xl">✨</span>
+                  <span className="text-4xl">🎀</span>
+                  <span className="text-4xl">✨</span>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-center">
+                <p className="text-2xl text-gray-400 font-light">
+                  Clique no botão para começar o sorteio
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Draw Button */}
@@ -155,44 +138,31 @@ export default function Home() {
             <Button
               onClick={performDraw}
               disabled={isSpinning}
-              className="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transform transition hover:scale-105 disabled:scale-100 disabled:opacity-70"
+              className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold py-4 px-12 rounded-full text-lg shadow-lg transform transition hover:scale-105 disabled:scale-100 disabled:opacity-70"
             >
-              {isSpinning ? "GIRANDO..." : "GIRAR A BOLA"}
+              {isSpinning ? "SORTEANDO..." : "SORTEAR NOME"}
             </Button>
           </div>
 
-          {/* Result */}
-          {selectedName && (
-            <div className="text-center space-y-4 animate-in fade-in duration-500">
-              <div className="p-8 bg-gradient-to-r from-pink-100 to-pink-50 rounded-lg border-4 border-pink-400">
-                <p className="text-sm text-gray-600 mb-3">🎉 Sorteado(a):</p>
-                <p className="text-6xl font-bold text-pink-600 drop-shadow">
-                  {selectedName}
-                </p>
-              </div>
-
-              <div className="p-4 bg-purple-100 rounded-lg border-2 border-purple-400">
-                <p className="text-lg font-semibold text-purple-600">
-                  ✨ Parabéns, {selectedName}! ✨
-                </p>
-              </div>
-            </div>
-          )}
+          {/* Quick stats */}
+          <div className="text-center text-sm text-gray-600">
+            <p>Total de convidados: <span className="font-semibold text-rose-600">{GUEST_NAMES.length}</span></p>
+          </div>
         </Card>
 
-        {/* Info Section */}
-        <Card className="bg-white/95 backdrop-blur shadow-xl p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Convidados:
+        {/* Guests Grid */}
+        <Card className="bg-white/80 backdrop-blur-xl shadow-2xl p-8 border border-white/50">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+            Convidados
           </h3>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {GUEST_NAMES.map((name) => (
               <div
                 key={name}
-                className={`font-semibold rounded-lg p-3 text-center text-sm transition-all ${
+                className={`p-4 rounded-xl font-semibold text-center transition-all duration-300 ${
                   selectedName === name
-                    ? "bg-pink-400 text-white scale-110 shadow-lg"
-                    : "bg-pink-100 text-gray-900 shadow-md"
+                    ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white scale-110 shadow-lg"
+                    : "bg-gradient-to-br from-rose-50 to-pink-50 text-gray-800 border border-rose-200 hover:border-rose-400"
                 }`}
               >
                 {name}
@@ -200,6 +170,13 @@ export default function Home() {
             ))}
           </div>
         </Card>
+
+        {/* Footer decoration */}
+        <div className="text-center mt-12">
+          <p className="text-gray-500 text-sm">
+            Que a sorte esteja com você! 🍀
+          </p>
+        </div>
       </div>
     </div>
   );
