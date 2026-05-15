@@ -3,11 +3,33 @@ import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import Confetti from "react-confetti";
 
-const WINNING_NUMBERS = [59, 60, 49, 66, 41, 43, 25, 10, 47, 50, 67, 54, 62];
+// Lista de nomes dos convidados
+const GUEST_NAMES = [
+  "Ana",
+  "Bruno",
+  "Carla",
+  "Diego",
+  "Eduarda",
+  "Felipe",
+  "Gabriela",
+  "Henrique",
+  "Isabela",
+  "João",
+  "Kamila",
+  "Leonardo",
+  "Mariana",
+  "Nicolas",
+  "Olivia",
+  "Pedro",
+  "Quincy",
+  "Rafael",
+  "Sofia",
+  "Tomás",
+];
 
 export default function Home() {
   const [isSpinning, setIsSpinning] = useState(false);
-  const [winnerNumber, setWinnerNumber] = useState<number | null>(null);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== "undefined" ? window.innerWidth : 0,
@@ -29,7 +51,7 @@ export default function Home() {
 
   const performDraw = () => {
     setIsSpinning(true);
-    setWinnerNumber(null);
+    setSelectedName(null);
     setShowConfetti(false);
 
     // Animate spinning
@@ -42,24 +64,23 @@ export default function Home() {
     // After 3 seconds, stop spinning and reveal winner
     setTimeout(() => {
       clearInterval(spinInterval);
-      
-      // Pick a random number from 1 to 100
-      const winner = Math.floor(Math.random() * 100) + 1;
-      setWinnerNumber(winner);
-      
+
+      // Pick a random name
+      const randomIndex = Math.floor(Math.random() * GUEST_NAMES.length);
+      const winner = GUEST_NAMES[randomIndex];
+      setSelectedName(winner);
+
       // Final rotation to stop at a nice angle
-      const finalRotation = (winner * 3.6) % 360;
+      const finalRotation = (randomIndex * (360 / GUEST_NAMES.length)) % 360;
       setRotation(finalRotation);
-      
+
       setIsSpinning(false);
-      
+
       // Show confetti for celebration
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
     }, 3000);
   };
-
-  const isUserWinner = winnerNumber && WINNING_NUMBERS.includes(winnerNumber);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-500 via-pink-300 to-pink-100 flex flex-col items-center justify-center p-4">
@@ -76,10 +97,11 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
-            Rifa Festa de 15 Anos - Lara
+            Sorteio Festa de 15 Anos
           </h1>
+          <p className="text-2xl text-white mb-1 drop-shadow">Lara</p>
           <p className="text-xl text-white/90 drop-shadow">
-            Sorteio ao Vivo - 1 Ganhador
+            Quem será o próximo sorteado?
           </p>
         </div>
 
@@ -90,8 +112,8 @@ export default function Home() {
             <div className="relative w-64 h-64">
               {/* Outer ring */}
               <div className="absolute inset-0 rounded-full border-8 border-pink-600 shadow-2xl"></div>
-              
-              {/* Spinning ball with numbers */}
+
+              {/* Spinning ball with names */}
               <div
                 className={`absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 shadow-2xl flex items-center justify-center transition-transform ${
                   isSpinning ? "" : "transition-transform duration-1000"
@@ -101,29 +123,28 @@ export default function Home() {
                   transitionDuration: isSpinning ? "0ms" : "1000ms",
                 }}
               >
-                {/* Numbers around the ball */}
-                {Array.from({ length: 20 }, (_, i) => {
-                  const angle = (i * 18) * (Math.PI / 180);
+                {/* Names around the ball */}
+                {GUEST_NAMES.map((name, i) => {
+                  const angle = (i * (360 / GUEST_NAMES.length)) * (Math.PI / 180);
                   const x = Math.cos(angle) * 100;
                   const y = Math.sin(angle) * 100;
-                  const number = (i * 5) + 1;
-                  
+
                   return (
                     <div
                       key={i}
-                      className="absolute w-12 h-12 flex items-center justify-center font-bold text-lg text-white drop-shadow-lg"
+                      className="absolute w-16 h-16 flex items-center justify-center font-bold text-xs text-white drop-shadow-lg text-center"
                       style={{
                         transform: `translate(${x}px, ${y}px)`,
                       }}
                     >
-                      {number}
+                      {name}
                     </div>
                   );
                 })}
-                
+
                 {/* Center circle */}
                 <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center">
-                  <span className="text-3xl font-bold text-pink-600">🎰</span>
+                  <span className="text-3xl font-bold text-pink-600">🎀</span>
                 </div>
               </div>
             </div>
@@ -141,51 +162,40 @@ export default function Home() {
           </div>
 
           {/* Result */}
-          {winnerNumber && (
-            <div className="text-center space-y-4">
-              <div className="p-6 bg-gradient-to-r from-yellow-100 to-yellow-50 rounded-lg border-4 border-yellow-400">
-                <p className="text-sm text-gray-600 mb-2">Número Sorteado:</p>
-                <p className="text-6xl font-bold text-yellow-600 drop-shadow">
-                  {winnerNumber}
+          {selectedName && (
+            <div className="text-center space-y-4 animate-in fade-in duration-500">
+              <div className="p-8 bg-gradient-to-r from-pink-100 to-pink-50 rounded-lg border-4 border-pink-400">
+                <p className="text-sm text-gray-600 mb-3">🎉 Sorteado(a):</p>
+                <p className="text-6xl font-bold text-pink-600 drop-shadow">
+                  {selectedName}
                 </p>
               </div>
 
-              {isUserWinner ? (
-                <div className="p-4 bg-green-100 rounded-lg border-2 border-green-400">
-                  <p className="text-2xl font-bold text-green-600">
-                    🎉 VOCÊ GANHOU! 🎉
-                  </p>
-                </div>
-              ) : (
-                <div className="p-4 bg-blue-100 rounded-lg border-2 border-blue-400">
-                  <p className="text-lg font-semibold text-blue-600">
-                    Número sorteado: {winnerNumber}
-                  </p>
-                  <p className="text-gray-700 mt-2">
-                    Seus números: {WINNING_NUMBERS.join(", ")}
-                  </p>
-                </div>
-              )}
+              <div className="p-4 bg-purple-100 rounded-lg border-2 border-purple-400">
+                <p className="text-lg font-semibold text-purple-600">
+                  ✨ Parabéns, {selectedName}! ✨
+                </p>
+              </div>
             </div>
           )}
         </Card>
 
         {/* Info Section */}
         <Card className="bg-white/95 backdrop-blur shadow-xl p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">
-            Seus Números na Rifa:
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Convidados:
           </h3>
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-7">
-            {WINNING_NUMBERS.map((num) => (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+            {GUEST_NAMES.map((name) => (
               <div
-                key={num}
-                className={`font-bold rounded-lg p-2 text-center text-sm transition-all ${
-                  winnerNumber === num
-                    ? "bg-green-400 text-white scale-110 shadow-lg"
-                    : "bg-yellow-300 text-gray-900 shadow-md"
+                key={name}
+                className={`font-semibold rounded-lg p-3 text-center text-sm transition-all ${
+                  selectedName === name
+                    ? "bg-pink-400 text-white scale-110 shadow-lg"
+                    : "bg-pink-100 text-gray-900 shadow-md"
                 }`}
               >
-                {num}
+                {name}
               </div>
             ))}
           </div>
