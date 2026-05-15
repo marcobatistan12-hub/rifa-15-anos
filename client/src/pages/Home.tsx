@@ -3,33 +3,9 @@ import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import Confetti from "react-confetti";
 
-// Lista de nomes dos convidados
-const GUEST_NAMES = [
-  "Ana",
-  "Bruno",
-  "Carla",
-  "Diego",
-  "Eduarda",
-  "Felipe",
-  "Gabriela",
-  "Henrique",
-  "Isabela",
-  "João",
-  "Kamila",
-  "Leonardo",
-  "Mariana",
-  "Nicolas",
-  "Olivia",
-  "Pedro",
-  "Quincy",
-  "Rafael",
-  "Sofia",
-  "Tomás",
-];
-
 export default function Home() {
   const [isSpinning, setIsSpinning] = useState(false);
-  const [selectedName, setSelectedName] = useState<string | null>(null);
+  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== "undefined" ? window.innerWidth : 0,
@@ -52,15 +28,15 @@ export default function Home() {
     if (isSpinning) return;
 
     setIsSpinning(true);
-    setSelectedName(null);
+    setSelectedNumber(null);
     setShowConfetti(false);
 
-    // Simulate spinning through names
+    // Simulate spinning through numbers
     let iterations = 0;
-    const maxIterations = 30;
+    const maxIterations = 40;
     const spinInterval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * GUEST_NAMES.length);
-      setSelectedName(GUEST_NAMES[randomIndex]);
+      const randomNumber = Math.floor(Math.random() * 100) + 1;
+      setSelectedNumber(randomNumber);
       iterations++;
 
       if (iterations >= maxIterations) {
@@ -69,7 +45,7 @@ export default function Home() {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
       }
-    }, 100);
+    }, 80);
   };
 
   return (
@@ -102,7 +78,7 @@ export default function Home() {
           </h2>
           <p className="text-2xl font-semibold text-rose-600 mb-2">Lara</p>
           <p className="text-lg text-gray-600">
-            Descubra quem será o próximo sorteado
+            Descubra o número sorteado
           </p>
         </div>
 
@@ -110,18 +86,18 @@ export default function Home() {
         <Card className="bg-white/80 backdrop-blur-xl shadow-2xl p-12 mb-8 border border-white/50">
           {/* Result Display */}
           <div className="min-h-64 flex items-center justify-center mb-12">
-            {selectedName ? (
+            {selectedNumber ? (
               <div className="text-center animate-in fade-in zoom-in duration-500">
-                <p className="text-sm font-semibold text-rose-500 uppercase tracking-widest mb-4">
-                  Sorteado(a)
+                <p className="text-sm font-semibold text-rose-500 uppercase tracking-widest mb-6">
+                  Número Sorteado
                 </p>
-                <p className="text-8xl md:text-9xl font-bold text-transparent bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text mb-6">
-                  {selectedName}
+                <p className="text-9xl md:text-10xl font-bold text-transparent bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text mb-8">
+                  {selectedNumber}
                 </p>
-                <div className="flex justify-center gap-2">
-                  <span className="text-4xl">✨</span>
-                  <span className="text-4xl">🎀</span>
-                  <span className="text-4xl">✨</span>
+                <div className="flex justify-center gap-3">
+                  <span className="text-5xl">✨</span>
+                  <span className="text-5xl">🎀</span>
+                  <span className="text-5xl">✨</span>
                 </div>
               </div>
             ) : (
@@ -140,32 +116,32 @@ export default function Home() {
               disabled={isSpinning}
               className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold py-4 px-12 rounded-full text-lg shadow-lg transform transition hover:scale-105 disabled:scale-100 disabled:opacity-70"
             >
-              {isSpinning ? "SORTEANDO..." : "SORTEAR NOME"}
+              {isSpinning ? "SORTEANDO..." : "SORTEAR NÚMERO"}
             </Button>
           </div>
 
           {/* Quick stats */}
           <div className="text-center text-sm text-gray-600">
-            <p>Total de convidados: <span className="font-semibold text-rose-600">{GUEST_NAMES.length}</span></p>
+            <p>Números disponíveis: <span className="font-semibold text-rose-600">1 a 100</span></p>
           </div>
         </Card>
 
-        {/* Guests Grid */}
+        {/* Numbers Grid */}
         <Card className="bg-white/80 backdrop-blur-xl shadow-2xl p-8 border border-white/50">
           <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-            Convidados
+            Números (1 a 100)
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {GUEST_NAMES.map((name) => (
+          <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
+            {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
               <div
-                key={name}
-                className={`p-4 rounded-xl font-semibold text-center transition-all duration-300 ${
-                  selectedName === name
+                key={num}
+                className={`p-3 rounded-lg font-semibold text-center text-sm transition-all duration-300 ${
+                  selectedNumber === num
                     ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white scale-110 shadow-lg"
-                    : "bg-gradient-to-br from-rose-50 to-pink-50 text-gray-800 border border-rose-200 hover:border-rose-400"
+                    : "bg-gradient-to-br from-rose-50 to-pink-50 text-gray-800 border border-rose-200"
                 }`}
               >
-                {name}
+                {num}
               </div>
             ))}
           </div>
