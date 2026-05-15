@@ -76,7 +76,7 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
-            Rifa Festa de 15 Anos
+            Rifa Festa de 15 Anos - Lara
           </h1>
           <p className="text-xl text-white/90 drop-shadow">
             Sorteio ao Vivo - 1 Ganhador
