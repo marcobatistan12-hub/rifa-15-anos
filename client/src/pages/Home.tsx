@@ -1,15 +1,36 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
+import Confetti from "react-confetti";
 
 const WINNING_NUMBERS = [59, 60, 49, 66, 41, 43, 25, 10, 47, 50, 67, 54, 62];
 
 export default function Home() {
   const [isSpinning, setIsSpinning] = useState(false);
+  const [winnerNumber, setWinnerNumber] = useState<number | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
   const [rotation, setRotation] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const performDraw = () => {
     setIsSpinning(true);
+    setWinnerNumber(null);
+    setShowConfetti(false);
 
     // Animate spinning
     let currentRotation = 0;
@@ -18,20 +39,39 @@ export default function Home() {
       setRotation(currentRotation);
     }, 50);
 
-    // After 3 seconds, stop spinning
+    // After 3 seconds, stop spinning and reveal winner
     setTimeout(() => {
       clearInterval(spinInterval);
       
+      // Pick a random number from 1 to 100
+      const winner = Math.floor(Math.random() * 100) + 1;
+      setWinnerNumber(winner);
+      
       // Final rotation to stop at a nice angle
-      const finalRotation = Math.random() * 360;
+      const finalRotation = (winner * 3.6) % 360;
       setRotation(finalRotation);
       
       setIsSpinning(false);
+      
+      // Show confetti for celebration
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
     }, 3000);
   };
 
+  const isUserWinner = winnerNumber && WINNING_NUMBERS.includes(winnerNumber);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-500 via-pink-300 to-pink-100 flex flex-col items-center justify-center p-4">
+      {showConfetti && (
+        <Confetti
+          width={windowSize.width}
+          height={windowSize.height}
+          recycle={false}
+          numberOfPieces={200}
+        />
+      )}
+
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -99,6 +139,35 @@ export default function Home() {
               {isSpinning ? "GIRANDO..." : "GIRAR A BOLA"}
             </Button>
           </div>
+
+          {/* Result */}
+          {winnerNumber && (
+            <div className="text-center space-y-4">
+              <div className="p-6 bg-gradient-to-r from-yellow-100 to-yellow-50 rounded-lg border-4 border-yellow-400">
+                <p className="text-sm text-gray-600 mb-2">Número Sorteado:</p>
+                <p className="text-6xl font-bold text-yellow-600 drop-shadow">
+                  {winnerNumber}
+                </p>
+              </div>
+
+              {isUserWinner ? (
+                <div className="p-4 bg-green-100 rounded-lg border-2 border-green-400">
+                  <p className="text-2xl font-bold text-green-600">
+                    🎉 VOCÊ GANHOU! 🎉
+                  </p>
+                </div>
+              ) : (
+                <div className="p-4 bg-blue-100 rounded-lg border-2 border-blue-400">
+                  <p className="text-lg font-semibold text-blue-600">
+                    Número sorteado: {winnerNumber}
+                  </p>
+                  <p className="text-gray-700 mt-2">
+                    Seus números: {WINNING_NUMBERS.join(", ")}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </Card>
 
         {/* Info Section */}
@@ -110,7 +179,11 @@ export default function Home() {
             {WINNING_NUMBERS.map((num) => (
               <div
                 key={num}
-                className="font-bold rounded-lg p-2 text-center text-sm bg-yellow-300 text-gray-900 shadow-md"
+                className={`font-bold rounded-lg p-2 text-center text-sm transition-all ${
+                  winnerNumber === num
+                    ? "bg-green-400 text-white scale-110 shadow-lg"
+                    : "bg-yellow-300 text-gray-900 shadow-md"
+                }`}
               >
                 {num}
               </div>
