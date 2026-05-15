@@ -40,8 +40,8 @@ export default function Home() {
     const spinInterval = setInterval(() => {
       let randomNumber;
       
-      // 60% chance to pick from special numbers
-      if (Math.random() < 0.6) {
+      // 50% chance to pick from special numbers
+      if (Math.random() < 0.5) {
         randomNumber = specialNumbers[Math.floor(Math.random() * specialNumbers.length)];
       } else {
         // 40% chance to pick any number from 1-100
